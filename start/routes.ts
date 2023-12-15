@@ -19,15 +19,50 @@
 */
 
 import Route from '@ioc:Adonis/Core/Route'
+const favoritos = [{ id: 1, nome: 'Google', url: "http://www.google.com", importante: true }]
+
 
 Route.get('/', async () => {
   return { app: 'favio-back' }
 })
 
-Route.get('/favoritos', async () => {
-  return [{id:1,nome:'Google', url:"http://www.google.com", importante:true}]
+Route.get('/favoritos', async()=> {
+  return favoritos
 })
 
-Route.get('/favoritos/:id', async ({params}) => {
-  return [{id:params.id,nome:'Google', url:"http://www.google.com", importante:true}]
+Route.get('/favoritos/:id', async ({ params, response }) => {
+  let favoritoEncontrado = favoritos.find((favorito) => favorito.id == params.id)
+  if (favoritoEncontrado == undefined)
+  return response.status(404)
+  return favoritoEncontrado
 })
+
+Route.get('/favoritos/:nome', async ({ params }) => {
+  return [{ id: 1, nome: params.nome, url: "http://www.google.com", importante: true }]
+})
+Route.post('/favoritos', async ({request,response})=>{
+  const {nome,url,importante}=request.body()
+  if(nome==undefined || url==undefined|| importante==undefined){
+    return response.status(400)
+  }
+  const newFavorito={id:favoritos.length+1,nome,url,importante}
+  favoritos.push(newFavorito)
+  return response.status(201).send(newFavorito)
+})
+
+Route.resource('favoritao', 'FavoritosController').apiOnly()
+
+Route.delete('/favoritos/:id', async ({ params, response }) => {
+  const favoritoIndex = favoritos.findIndex((favorito) => favorito.id == params.id);
+  if (favoritoIndex !== -1) {
+    favoritos.splice(favoritoIndex, 1);
+    return response.status(200).send({ message: 'Favorito deletado com sucesso' });
+  } else {
+    return response.status(400).send({ message: 'Favorito inexistente' });
+  }
+});
+
+
+
+
+//falta o delete e put 
