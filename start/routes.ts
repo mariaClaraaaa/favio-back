@@ -50,7 +50,19 @@ Route.post('/favoritos', async ({request,response})=>{
   return response.status(201).send(newFavorito)
 })
 
-Route.resource('favoritao', 'FavoritosController').apiOnly()
+Route.put('/favoritos/:id', async ({request, params, response}) => {
+  const {nome, url, importante}= request.body()
+    let favoritoEncontrado = favoritos.find((favorito) => favorito.id == params.id)
+    if (!favoritoEncontrado)
+      return response.status(404)
+    favoritoEncontrado.nome=nome
+    favoritoEncontrado.url=url
+    favoritoEncontrado.importante=importante
+
+    favoritos[params.id]=favoritoEncontrado
+    return response.status(200).send(favoritoEncontrado)
+})
+
 
 Route.delete('/favoritos/:id', async ({ params, response }) => {
   const favoritoIndex = favoritos.findIndex((favorito) => favorito.id == params.id);
@@ -62,7 +74,7 @@ Route.delete('/favoritos/:id', async ({ params, response }) => {
   }
 });
 
-
+Route.resource('favoritao', 'FavoritosController').apiOnly()
 
 
 //falta o delete e put 
